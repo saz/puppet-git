@@ -4,8 +4,6 @@
 
 define git::checkout ($directory, $repository, $user=undef, $commit='master') {
 
-    notify {"git::checkout of $repository to $directory": }
-
     file {
         "$directory":
             ensure  => directory,
@@ -36,6 +34,7 @@ define git::checkout ($directory, $repository, $user=undef, $commit='master') {
     }
 
     # always run
+    # FIXME: make recursive
     exec {
         "git-pull-$directory":
             cwd         => $directory,
@@ -54,7 +53,7 @@ define git::checkout ($directory, $repository, $user=undef, $commit='master') {
             command     => "/usr/bin/git checkout $commit",
             # unless      => " ",
             refreshonly => false,
-            logoutput   => true,
+            logoutput   => on_failure,
             require     => Exec["git-pull-$directory"],
     }
 }
