@@ -4,6 +4,8 @@
 
 define git::checkout ($directory, $repository, $user=undef, $commit='master') {
 
+    include git::install
+
     file {
         "$directory":
             ensure  => directory,
