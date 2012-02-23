@@ -13,6 +13,7 @@ define git::checkout ($directory, $repository, $user=undef, $commit='master') {
 
     $allrequire = [
         File["$directory"],
+        Class['git::install'],
     ]
 
     if ($user) {
@@ -36,10 +37,10 @@ define git::checkout ($directory, $repository, $user=undef, $commit='master') {
     # always run
     # FIXME: make recursive
     exec {
-        "git-pull-$directory":
+        "git-fetch-$directory":
             cwd         => $directory,
             user        => $user,
-            command     => "/usr/bin/git pull; /usr/bin/git submodule init; /usr/bin/git submodule update",
+            command     => "/usr/bin/git fetch -a",
             refreshonly => false,
             logoutput   => on_failure,
             require     => $require,
@@ -50,10 +51,10 @@ define git::checkout ($directory, $repository, $user=undef, $commit='master') {
         "git-checkout-$directory":
             cwd         => $directory,
             user        => $user,
-            command     => "/usr/bin/git checkout $commit",
+            command     => "/usr/bin/git checkout $commit; /usr/bin/git submodule init; /usr/bin/git submodule update --recursive",
             # unless      => " ",
             refreshonly => false,
             logoutput   => on_failure,
-            require     => Exec["git-pull-$directory"],
+            require     => Exec["git-fetch-$directory"],
     }
 }
