@@ -47,7 +47,7 @@ define git::checkout ($directory, $repository, $user=undef, $commit='master') {
             command     => "git fetch -a",
             refreshonly => false,
             logoutput   => on_failure,
-            require     => $require,
+            require     => [ $require, Exec["git-clone-$directory"] ],
     }
 
     # FIXME: only run if the commit is given and different from current checkout
