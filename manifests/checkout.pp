@@ -29,7 +29,8 @@ define git::checkout ($directory, $repository, $user=undef, $commit='master') {
         "git-clone-$directory":
             cwd         => $directory,
             user        => $user,
-            command     => "/usr/bin/git clone --recursive $repository .",
+            path        => [ "/usr/bin", ],
+            command     => "git clone --recursive $repository .",
             creates     => "$directory/.git",
             refreshonly => false,
             logoutput   => on_failure,
@@ -42,7 +43,8 @@ define git::checkout ($directory, $repository, $user=undef, $commit='master') {
         "git-fetch-$directory":
             cwd         => $directory,
             user        => $user,
-            command     => "/usr/bin/git fetch -a",
+            path        => [ "/usr/bin", ],
+            command     => "git fetch -a",
             refreshonly => false,
             logoutput   => on_failure,
             require     => $require,
@@ -53,7 +55,8 @@ define git::checkout ($directory, $repository, $user=undef, $commit='master') {
         "git-checkout-$directory":
             cwd         => $directory,
             user        => $user,
-            command     => "/usr/bin/git checkout $commit; /usr/bin/git submodule init; /usr/bin/git submodule update --recursive",
+            path        => [ "/usr/bin", ],
+            command     => "git checkout $commit; git submodule init; git submodule update --recursive",
             # unless      => " ",
             refreshonly => false,
             logoutput   => on_failure,
