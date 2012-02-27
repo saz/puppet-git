@@ -2,7 +2,9 @@
 
 # set up known_hosts and identities outside of this module
 
-define git::checkout ($directory, $repository, $user=undef, $commit='master') {
+define git::checkout (
+    $directory, $checkoutdir, $repository,
+    $user=undef, $commit='master') {
 
     include git::install
 
@@ -29,37 +31,29 @@ define git::checkout ($directory, $repository, $user=undef, $commit='master') {
         "git-clone-$directory":
             cwd         => $directory,
             user        => $user,
-            path        => [ "/usr/bin", ],
-            command     => "git clone --recursive $repository .",
-            creates     => "$directory/.git",
+            path        => [ "/bin", "/usr/bin", ],
+            command     => "git clone --recursive $repository $checkoutdir && cd $checkoutdir && git checkout $commit",
+            creates     => "$directory/$checkoutdir",
             refreshonly => false,
             logoutput   => on_failure,
             require     => $require,
     }
 
-    # always run
-    # FIXME: make recursive
-    exec {
-        "git-fetch-$directory":
-            cwd         => $directory,
-            user        => $user,
-            path        => [ "/usr/bin", ],
-            command     => "git fetch -a",
-            refreshonly => false,
-            logoutput   => on_failure,
-            require     => [ $require, Exec["git-clone-$directory"] ],
-    }
-
     # FIXME: only run if the commit is given and different from current checkout
+    # FIXME: but if we check out a branch, always fetch and update
+    # FIXME: if it's a branch, we need to do git pull too
     exec {
         "git-checkout-$directory":
-            cwd         => $directory,
+            cwd         => "$directory/$checkoutdir",
             user        => $user,
-            path        => [ "/usr/bin", ],
-            command     => "git checkout $commit; git submodule init; git submodule update --recursive",
-            # unless      => " ",
+            path        => [ "/bin", "/usr/bin", ],
+            command     => "git fetch -a && git pull && git checkout $commit && git submodule init && git submodule update --recursive && git rev-parse HEAD > ../commit",
+            unless      => "test x$commit == `cat ../commit`",
             refreshonly => false,
             logoutput   => on_failure,
-            require     => Exec["git-fetch-$directory"],
+            require     => [
+                Exec["git-clone-$directory"],
+#                File["$directory/$checkoutdir"],
+            ]
     }
 }
