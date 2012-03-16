@@ -61,7 +61,7 @@ define git::checkout (
             user        => $user,
             path        => [ "/bin", "/usr/bin", ],
             command     => "git clone --recursive $repository $checkoutdir && cd $checkoutdir && git checkout $commit",
-            creates     => "$directory/$checkoutdir",
+            creates     => "$directory/$checkoutdir/.git",
             refreshonly => false,
             logoutput   => on_failure,
             require     => $require,
