@@ -78,7 +78,8 @@ define git::checkout (
             # if the previous checkout was a tag, it's not a branch, so git pull
             # fails; so break the && chain, but fetch again
             command     => "git fetch -a && git pull; git fetch -a && git checkout $commit && git submodule init && git submodule update --recursive && git rev-parse HEAD > ../commit",
-            unless      => "test -e ../commit && ( test x$commit == `cat ../commit` || git tag --contains `cat ../commit` | grep $commit )",
+            unless      => "test -e ../commit && ( test x$commit == `cat ../commit` || test `git rev-parse --verify $commit^0 | head -n 1` == `cat ../commit` )",
+
             refreshonly => false,
             logoutput   => on_failure,
             require     => [
