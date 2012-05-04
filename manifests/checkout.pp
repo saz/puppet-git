@@ -75,10 +75,41 @@ define git::checkout (
             cwd         => "$directory/$checkoutdir",
             user        => $user,
             path        => [ "/bin", "/usr/bin", ],
-            # if the previous checkout was a tag, it's not a branch, so git pull
-            # fails; so break the && chain, but fetch again
-            command     => "git fetch -a && git pull; git fetch -a && git checkout $commit && git submodule init && git submodule update --recursive && git rev-parse HEAD > ../commit",
-            unless      => "test -e ../commit && ( test x$commit == `cat ../commit` || test `git rev-parse --verify $commit^0 | head -n 1` == `cat ../commit` )",
+            # FIXME: if git pull creates new files that are already present,
+            #        a pull fails, and so we don't have newer commits
+            #        so instead we fetch, then do a detached checkout of origin,
+            #        and since git checkout has --force it overwrites those
+            #        files
+            command     => 
+                "git fetch -a \
+                    && git checkout --force origin/$commit \
+                    && git submodule init \
+                    && git submodule sync \
+                    && git submodule update --recursive \
+                    && git rev-parse HEAD > ../commit",
+            # if the unless command has an exit value of 1, command will run
+
+            # if there is no commit file, run
+            # if there is a commit file, but it matches $commit (and hence is
+            # an actual commit hash), don't run
+            # if commit is master or a branch name, we need to fetch because
+            #    origin may have changed
+            # run if whatever commit hash the $commit points to does not match
+            #    our current commit file
+
+            # test on machine with:
+            # su - www
+            # cd /var/www/merchant-test.credex.net
+            # export commit=master
+            # copy-paste unless command
+            # echo $?
+            unless      => 
+                "test -e ../commit && \
+                  ( \
+                    test x$commit == `cat ../commit` || \
+                        ( \
+                            git fetch -a; \
+                            test `git rev-parse --verify origin/$commit^0 | head -n 1` == `cat ../commit` ) )",
 
             refreshonly => false,
             logoutput   => on_failure,
