@@ -75,14 +75,22 @@ define git::checkout (
             cwd         => "$directory/$checkoutdir",
             user        => $user,
             path        => [ "/bin", "/usr/bin", ],
+            # Note:
+            # $commit can be
+            # - a local branch (which will not be updated)
+            # - a remote branch (which will be updated)
+            # - a tag (tags are fetched so will be recent)
+            # - a commit hash
+
+            # to keep updating from a branch, use origin/(branch name)
             # FIXME: if git pull creates new files that are already present,
             #        a pull fails, and so we don't have newer commits
-            #        so instead we fetch, then do a detached checkout of origin,
-            #        and since git checkout has --force it overwrites those
-            #        files
+            #        so instead we fetch, then do a detached checkout of
+            #        $commit, and since git checkout has --force it overwrites
+            #        those files
             command     => 
                 "git fetch -a \
-                    && git checkout --force origin/$commit \
+                    && git checkout --force $commit \
                     && git submodule init \
                     && git submodule sync \
                     && git submodule update --recursive \
