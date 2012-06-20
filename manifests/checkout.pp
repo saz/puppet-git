@@ -117,7 +117,7 @@ define git::checkout (
                     test x$commit == `cat ../commit` || \
                         ( \
                             git fetch -a; \
-                            test `git rev-parse --verify origin/$commit^0 | head -n 1` == `cat ../commit` ) )",
+                            test `git rev-parse --verify $commit^0 | head -n 1` == `cat ../commit` ) )",
 
             refreshonly => false,
             logoutput   => on_failure,
