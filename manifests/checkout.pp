@@ -16,7 +16,8 @@
 #                go in $directory.
 # $repository::  The URL to the repository.
 # $user::        The user to clone or update as
-# $commit::      The commit hash or tag to check out
+# $commit::      The commit hash, branch or tag to check out.
+#                For remote branches, use origin/(name) notation
 #
 # == Actions:
 #   Clone and checkout or update to a given commit or tag.
