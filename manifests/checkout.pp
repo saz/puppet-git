@@ -1,11 +1,11 @@
-# handle git checkouts from a repository
-
-# set up known_hosts and identities outside of this module
-
 # = Define: git::checkout
 #
-# This class maintains a git checkout from a repository.
-# known_hosts and ssh identities should be set up properly
+# This define maintains a git checkout from a repository.
+# known_hosts and ssh identities should be set up properly.
+#
+# To express a dependency on checkoutdir, use:
+#   require => Exec["git-clone-${directory}"]
+
 #
 # == Parameters:
 #
@@ -27,7 +27,7 @@
 #       directory => '/usr/src',
 #       checkoutdir => 'linux',
 #       repository => 'git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git',
-#     commit => 'v3.2',
+#       commit => 'v3.2',
 #   }
 #
 define git::checkout (
