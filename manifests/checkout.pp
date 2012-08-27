@@ -91,6 +91,7 @@ define git::checkout (
             #        those files
             command     => 
                 "git fetch -a \
+                    && git fetch -t \
                     && git checkout --force $commit \
                     && git submodule init \
                     && git submodule sync \
