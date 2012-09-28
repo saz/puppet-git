@@ -99,7 +99,7 @@ define git::checkout (
       && git submodule init \
       && git submodule sync \
       && git submodule update --recursive \
-      && git rev-parse HEAD > ../commit",
+      && git rev-parse HEAD > ${directory}/commit",
 
     # if the unless command has an exit value of 1, command will run
 
@@ -117,11 +117,11 @@ define git::checkout (
     # export commit=master
     # copy-paste unless command
     # echo $?
-    unless      => "test -e ../commit && \
+    unless      => "test -e ${directory}/commit && \
       ( \
-      test x${commit} == `cat ../commit` || \
+      test x${commit} == `cat ${directory}/commit` || \
       ( \
       git fetch -a; \
-      test `git rev-parse --verify ${commit}^0 | head -n 1` == `cat ../commit` ) )",
+      test `git rev-parse --verify ${commit}^0 | head -n 1` == `cat ${directory}/commit` ) )",
   }
 }
